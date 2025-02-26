@@ -17,6 +17,13 @@ output:
         languages: [sql]
 ---
 
+```{css, echo = FALSE}
+body {
+  font-family: Palatino, "Book Antiqua", Georgia, serif;
+  font-size: 1em;
+}
+```
+
 ```{=html}
 <script id="aliens-table" type="text/plain">
 CREATE TABLE aliens (
