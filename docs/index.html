@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.5">
+<title>A Short SQL Tutorial with the Aliens Table</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.7/css/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.7/css/article.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.7/css/callout.min.css">
+<style type="text/css">
+body {
+  font-size: 1em;
+}
+
+#TOC {
+    top: 0;
+    font-size: 1em; /* Increase font size */
+    color: #333; /* Change color to a darker shade for better visibility */
+    background-color: #f9f9f9; /* Optional: Add a background color for contrast */
+    padding: 1em; /* Add padding for better spacing */
+    border-radius: 5px; /* Optional: Add border-radius for rounded corners */
+  }
+
+@media (min-width: 1264.02px) {
+#TOC.side {
+    .active {
+    color: #1e90ff; /* DodgerBlue */
+    }
+    li li .active {
+    border-left: 3px solid;
+    margin-left: calc(-1em - 3px);
+    padding-left: 1em;
+    }
+    &:has(.active) li:not(:has(.active)) ul {
+    display: none;
+    }
+}
+}
+
+.callout-exercise {
+    --callout-background: white;
+    --callout-border: whitesmoke;
+    --callout-icon: "📝 ";
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/@antonz/codapi@0.19.10/dist/snippet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/styles/xcode.min.css">
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1>A Short SQL Tutorial with the Aliens Table</h1></div>
+</div>
+<div class="body">
+<div id="TOC">
+<ul class="numbered">
+<li><a href="#sec:introduction"><span class="section-number main-number">1</span> Introduction</a></li>
+<li><a href="#sec:retrieve"><span class="section-number main-number">2</span> Retrieve</a></li>
+<li><a href="#sec:filter"><span class="section-number main-number">3</span> Filter</a></li>
+<li><a href="#sec:sort"><span class="section-number main-number">4</span> Sort</a></li>
+<li><a href="#sec:aggregate"><span class="section-number main-number">5</span> Aggregate</a></li>
+<li><a href="#sec:join"><span class="section-number main-number">6</span> Join</a>
+<ul>
+<li><a href="#sec:inner-join"><span class="section-number">6.1</span> Inner Join</a></li>
+<li><a href="#sec:left-join"><span class="section-number">6.2</span> Left Join</a></li>
+</ul>
+</li>
+<li><a href="#sec:conclusion"><span class="section-number main-number">7</span> Conclusion</a></li>
+</ul>
+</div>
+<script id="aliens-table" type="text/plain">
+CREATE TABLE aliens (
+    id INTEGER PRIMARY KEY,
+    species TEXT NOT NULL,
+    habitat TEXT NOT NULL,
+    lifespan REAL,
+    size TEXT,
+    weight REAL
+);
+
+INSERT INTO aliens (species, habitat, lifespan, size, weight) VALUES
+('Zentar', 'Jungle', 120.0, 'Large', 300.0),
+('Gorlax', 'Desert', 85.0, 'Medium', 150.0),
+('Vexor', 'Ocean', 95.0, 'Small', 50.0),
+('Plutoid', 'Mountain', 150.0, 'Medium', 180.0),
+('Zyphor', 'Jungle', 200.0, 'Large', 500.0),
+('Xeltron', 'Desert', 75.0, 'Small', 40.0),
+('Mentar', 'Jungle', 110.0, 'Medium', 280.0),
+('Draknor', 'Ocean', 90.0, 'Small', 140.0),
+('Seltrix', 'Desert', 130.0, 'Large', 320.0),
+('Quorin', 'Mountain', 180.0, 'Medium', 400.0);
+
+##CODE##
+</script>
+<h2 id="sec:introduction"><span class="section-number main-number">1</span> Introduction</h2>
+<p>SQL is a powerful language for managing and querying databases. In this beginner tutorial, we will explore the basics of SQL using a sample table of aliens.</p>
+<p>The SQL engine we will be using is <a href="https://www.sqlite.org/index.html">SQLite</a>, a lightweight and serverless database engine. It is widely used for its simplicity and ease of integration. To get us started coding SQL as quickly as possible, we embedded the SQLite engine in the browser using <a href="https://codapi.org/">CodAPI</a>, which allows us to run SQL queries directly in the browser without any server setup. (The core technology behind the scene are <a href="https://wasi.dev/">WASI</a> and <a href="https://webassembly.org/">WebAssembly</a>.)</p>
+<p>Let’s check the version of SQLite we are using.</p>
+<pre><code class="language-sql">SELECT sqlite_version();
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<p>We also pre-loaded a data table with some data, the aliens table. Let’s take a look at the table structure.</p>
+<pre><code class="language-sql">PRAGMA table_info('aliens');
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<p>Different SQL engines have different flavours of SQL. For example, the <code>PRAGMA</code> command we justed used is specific to SQLite. However, the basic SQL syntax is quite similar across different engines. In this tutorial, we will focus on the most common SQL commands that are widely supported.</p>
+<h2 id="sec:retrieve"><span class="section-number main-number">2</span> Retrieve</h2>
+<p>Fetch all records from the table.</p>
+<pre><code class="language-sql">SELECT * FROM aliens;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<p>In real world situations, a data table can have many columns and millions of rows. Retrieving the entire table is not practical and most likely not what’s intended. A good practice is to <em>always</em> specify which columns you want to retrieve, and use the <code>LIMIT</code> clause to restrict the number of rows returned.</p>
+<pre><code class="language-sql">SELECT id, species, habitat, lifespan, size, weight
+FROM aliens
+LIMIT 5;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<div class="callout-exercise">
+<p>Write a query to fetch only <code>species</code> and <code>weight</code> columns from the table. Only display the first 8 rows.</p>
+<pre><code class="language-sql">
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<p>You can also use mathematical expressions in the <code>SELECT</code> statement. For example, suppose the <code>weight</code> column is in kilograms, and you want to convert it to pounds. You can do this by multiplying the weight by <code>2.20462</code>.</p>
+<pre><code class="language-sql">SELECT id, species, weight * 2.20462 AS weight_in_pounds
+FROM aliens
+LIMIT 5;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<div class="callout-exercise">
+<p>Suppose the <code>lifespan</code> column is in years, and you want to convert it to days. Write a query to do this.</p>
+<pre><code class="language-sql">
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<h2 id="sec:filter"><span class="section-number main-number">3</span> Filter</h2>
+<p>Find all <code>Jungle</code> aliens. Display only <code>id</code>, <code>species</code>, and <code>habitat</code> columns.</p>
+<pre><code class="language-sql">SELECT id, species, habitat
+FROM aliens 
+WHERE habitat = 'Jungle';
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<div class="callout-exercise">
+<p>Write a query to find all aliens that weigh more than <code>200</code> units and are <code>Large</code> in size. Display only <code>id</code>, <code>species</code>, <code>weight</code> and <code>size</code> columns.</p>
+<pre><code class="language-sql">--- hint: use the AND operator to combine multiple conditions
+
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<h2 id="sec:sort"><span class="section-number main-number">4</span> Sort</h2>
+<p>Sort aliens by <code>lifespan</code> in descending order. Display only <code>id</code>, <code>species</code>, and <code>lifespan</code> columns.</p>
+<pre><code class="language-sql">SELECT id, species, lifespan
+FROM aliens
+ORDER BY lifespan DESC;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<div class="callout-exercise">
+<p>Write a query to sort aliens by <code>size</code> in ascending order.</p>
+<pre><code class="language-sql">--- hint: the default sort order is ascending
+
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<div class="callout-exercise">
+<p>Write a query to sort all <code>Large</code> aliens by <code>weight</code> in descending order.</p>
+<pre><code class="language-sql">--- hint: use the WHERE clause before the ORDER BY clause
+
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<h2 id="sec:aggregate"><span class="section-number main-number">5</span> Aggregate</h2>
+<p>Find out how many aliens exist in each habitat.</p>
+<pre><code class="language-sql">SELECT habitat, count(*) AS count
+FROM aliens
+GROUP BY habitat;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<div class="callout-exercise">
+<p>Write a query to Find out how many aliens exist in each <code>habitat</code> and <code>size</code>.</p>
+<pre><code class="language-sql">--- hint: use the GROUP BY clause with multiple columns separated by commas
+
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<div class="callout-exercise">
+<p>Write a query to find the average <code>lifespan</code> of aliens in each <code>size</code>.</p>
+<pre><code class="language-sql">--- hint: use the avg() function
+
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<h2 id="sec:join"><span class="section-number main-number">6</span> Join</h2>
+<p>You may want to combine data from multiple tables. For example, suppose we have another table called <code>planets</code> that contains information about the planets where the aliens come from. We can use various <code>JOIN</code> operations to combine the two tables.</p>
+<p>Let’s first create the <code>planets</code> table and insert some data. It’s not the focus of this tutorial, so we will not go into details.</p>
+<pre><code class="language-sql">CREATE TABLE planets (
+    id INTEGER PRIMARY KEY,
+    planet_name TEXT NOT NULL,
+    dominant_species TEXT
+);
+
+INSERT INTO planets (planet_name, dominant_species) VALUES
+('Xyphos-3', 'Zentar'),
+('Draxis-9', 'Gorlax'),
+('Oceara', 'Draknor'),
+('Zentara', 'Mentar'),
+('Quorania', 'Quorin'),
+('Nebulon-5', NULL); -- A planet without a dominant species;
+</code></pre>
+<codapi-snippet id="planets-table" engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+<p>Let’s take a look at the <code>planets</code> table we just created.</p>
+<pre><code class="language-sql">SELECT * FROM planets;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+<h3 id="sec:inner-join"><span class="section-number">6.1</span> Inner Join</h3>
+<p>A <code>JOIN</code> or <code>INNER JOIN</code> returns only the records that have matching values in both tables. In this case, we can join the aliens and planets tables on the <code>species</code> column from the aliens table and the <code>dominant_species</code> column from the planets table.</p>
+<pre><code class="language-sql">SELECT aliens.species, aliens.habitat, planets.planet_name 
+FROM aliens
+JOIN planets ON aliens.species = planets.dominant_species;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+<h3 id="sec:left-join"><span class="section-number">6.2</span> Left Join</h3>
+<p>Now, let’s use a <code>LEFT JOIN</code> to combine the two tables. A <code>LEFT JOIN</code> returns all records from the left table and the matched records from the right table. If there is no match, NULL values are returned for columns from the right table.</p>
+<p>For example, take <code>aliens</code> table as the left table and <code>planets</code> table as the right table. We can join them on the <code>species</code> column from the <code>aliens</code> table and the <code>dominant_species</code> column from the <code>planets</code> table. In that way, we find all aliens and their corresponding planets. Note that some aliens may not have a corresponding planet discovered, so we will get NULL values for those aliens.</p>
+<pre><code class="language-sql">SELECT aliens.species, aliens.habitat, planets.planet_name 
+FROM aliens
+LEFT JOIN planets ON aliens.species = planets.dominant_species;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+<div class="callout-exercise">
+<p>Write a query to join the aliens and planets tables. This time, take the <code>planets</code> table as the left table and the <code>aliens</code> table as the right table. Think about what the result will look like before running the query.</p>
+<pre><code class="language-sql">
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+</div>
+<h2 id="sec:conclusion"><span class="section-number main-number">7</span> Conclusion</h2>
+<p>In this tutorial, we covered the basics of SQL using a sample aliens table. We learned how to retrieve, filter, sort, and aggregate data, as well as how to join multiple tables. These are fundamental skills that will help you work with databases effectively.</p>
+</div>
+<p>Created by Jay / TDMDAL with <a href="https://yihui.org/litedown/">litedown</a>, <a href="https://github.com/nalgeon/codapi-js">codapi-js</a>, and ChatGPT.</p>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.7/js/sidenotes.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.7/js/toc-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.7/js/callout.min.js" defer></script>
+<script src="https://unpkg.com/@antonz/runno@0.6.1/dist/runno.js" defer></script>
+<script src="https://unpkg.com/@antonz/codapi@0.19.10/dist/engine/wasi.js" defer></script>
+<script src="https://unpkg.com/@antonz/codapi@0.19.10/dist/snippet.js" defer></script>
+<script src="https://cdn.jsdelivr.net/combine/gh/highlightjs/cdn-release@11.7.0/build/highlight.min.js,gh/highlightjs/cdn-release@11.7.0/build/languages/sql.min.js,npm/@xiee/utils@1.14.7/js/load-highlight.js" defer></script>
+</body>
+</html>

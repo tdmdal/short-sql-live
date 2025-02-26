@@ -1,0 +1,326 @@
+---
+title: "A Short SQL Tutorial with the Aliens Table"
+output:
+  html:
+    meta:
+      css: [@default, @article, @callout, styles.css, https://unpkg.com/@antonz/codapi@0.19.10/dist/snippet.css]
+      js: [@sidenotes, @toc-highlight, @callout, https://unpkg.com/@antonz/runno@0.6.1/dist/runno.js, https://unpkg.com/@antonz/codapi@0.19.10/dist/engine/wasi.js, https://unpkg.com/@antonz/codapi@0.19.10/dist/snippet.js]
+      include_after: _footer.html
+    options:
+      toc: 
+        collapse: true
+        scroll_highlight: true
+      number_sections: true
+      js_highlight:
+        package: highlight
+        theme: github
+        languages: [sql]
+---
+
+```{=html}
+<script id="aliens-table" type="text/plain">
+CREATE TABLE aliens (
+    id INTEGER PRIMARY KEY,
+    species TEXT NOT NULL,
+    habitat TEXT NOT NULL,
+    lifespan REAL,
+    size TEXT,
+    weight REAL
+);
+
+INSERT INTO aliens (species, habitat, lifespan, size, weight) VALUES
+('Zentar', 'Jungle', 120.0, 'Large', 300.0),
+('Gorlax', 'Desert', 85.0, 'Medium', 150.0),
+('Vexor', 'Ocean', 95.0, 'Small', 50.0),
+('Plutoid', 'Mountain', 150.0, 'Medium', 180.0),
+('Zyphor', 'Jungle', 200.0, 'Large', 500.0),
+('Xeltron', 'Desert', 75.0, 'Small', 40.0),
+('Mentar', 'Jungle', 110.0, 'Medium', 280.0),
+('Draknor', 'Ocean', 90.0, 'Small', 140.0),
+('Seltrix', 'Desert', 130.0, 'Large', 320.0),
+('Quorin', 'Mountain', 180.0, 'Medium', 400.0);
+
+##CODE##
+</script>
+```
+
+## Introduction
+
+SQL is a powerful language for managing and querying databases. In this beginner tutorial, we will explore the basics of SQL using a sample table of aliens.
+
+The SQL engine we will be using is [SQLite](https://www.sqlite.org/index.html), a lightweight and serverless database engine. It is widely used for its simplicity and ease of integration. To get us started coding SQL as quickly as possible, we embedded the SQLite engine in the browser using [CodAPI](https://codapi.org/), which allows us to run SQL queries directly in the browser without any server setup. (The core technology behind the scene are [WASI](https://wasi.dev/) and [WebAssembly](https://webassembly.org/).)
+
+Let's check the version of SQLite we are using.
+
+```sql
+SELECT sqlite_version();
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+We also pre-loaded a data table with some data, the aliens table. Let's take a look at the table structure.
+
+```sql
+PRAGMA table_info('aliens');
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+Different SQL engines have different flavours of SQL. For example, the `PRAGMA` command we justed used is specific to SQLite. However, the basic SQL syntax is quite similar across different engines. In this tutorial, we will focus on the most common SQL commands that are widely supported.
+
+## Retrieve
+
+Fetch all records from the table.
+
+```sql
+SELECT * FROM aliens;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+In real world situations, a data table can have many columns and millions of rows. Retrieving the entire table is not practical and most likely not what's intended. A good practice is to *always* specify which columns you want to retrieve, and use the `LIMIT` clause to restrict the number of rows returned.
+
+```sql
+SELECT id, species, habitat, lifespan, size, weight
+FROM aliens
+LIMIT 5;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+::: callout-exercise
+
+Write a query to fetch only `species` and `weight` columns from the table. Only display the first 8 rows.
+
+```sql
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+:::
+
+You can also use mathematical expressions in the `SELECT` statement. For example, suppose the `weight` column is in kilograms, and you want to convert it to pounds. You can do this by multiplying the weight by `2.20462`.
+
+```sql
+SELECT id, species, weight * 2.20462 AS weight_in_pounds
+FROM aliens
+LIMIT 5;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+::: callout-exercise
+
+Suppose the `lifespan` column is in years, and you want to convert it to days. Write a query to do this.
+
+```sql
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+:::
+
+
+## Filter
+
+Find all `Jungle` aliens. Display only `id`, `species`, and `habitat` columns.
+
+```sql
+SELECT id, species, habitat
+FROM aliens 
+WHERE habitat = 'Jungle';
+```
+
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+::: callout-exercise
+
+Write a query to find all aliens that weigh more than `200` units and are `Large` in size. Display only `id`, `species`, `weight` and `size` columns.
+
+```sql
+--- hint: use the AND operator to combine multiple conditions
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+:::
+
+
+## Sort
+
+Sort aliens by `lifespan` in descending order. Display only `id`, `species`, and `lifespan` columns.
+
+```sql
+SELECT id, species, lifespan
+FROM aliens
+ORDER BY lifespan DESC;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+::: callout-exercise
+
+Write a query to sort aliens by `size` in ascending order.
+
+```sql
+--- hint: the default sort order is ascending
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+:::
+
+::: callout-exercise
+
+Write a query to sort all `Large` aliens by `weight` in descending order.
+
+```sql
+--- hint: use the WHERE clause before the ORDER BY clause
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+:::
+
+## Aggregate
+
+Find out how many aliens exist in each habitat. 
+
+```sql
+SELECT habitat, count(*) AS count
+FROM aliens
+GROUP BY habitat;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+::: callout-exercise
+
+Write a query to Find out how many aliens exist in each `habitat` and `size`.
+
+
+```sql
+--- hint: use the GROUP BY clause with multiple columns separated by commas
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+:::
+
+::: callout-exercise
+
+Write a query to find the average `lifespan` of aliens in each `size`.
+
+
+```sql
+--- hint: use the avg() function
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+:::
+
+
+## Join
+
+You may want to combine data from multiple tables. For example, suppose we have another table called `planets` that contains information about the planets where the aliens come from. We can use various `JOIN` operations to combine the two tables.
+
+Let's first create the `planets` table and insert some data. It's not the focus of this tutorial, so we will not go into details.
+
+```sql
+CREATE TABLE planets (
+    id INTEGER PRIMARY KEY,
+    planet_name TEXT NOT NULL,
+    dominant_species TEXT
+);
+
+INSERT INTO planets (planet_name, dominant_species) VALUES
+('Xyphos-3', 'Zentar'),
+('Draxis-9', 'Gorlax'),
+('Oceara', 'Draknor'),
+('Zentara', 'Mentar'),
+('Quorania', 'Quorin'),
+('Nebulon-5', NULL); -- A planet without a dominant species;
+```
+```{=html}
+<codapi-snippet id="planets-table" engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+Let's take a look at the `planets` table we just created.
+
+```sql
+SELECT * FROM planets;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+```
+
+### Inner Join
+
+A `JOIN` or `INNER JOIN` returns only the records that have matching values in both tables. In this case, we can join the aliens and planets tables on the `species` column from the aliens table and the `dominant_species` column from the planets table.
+
+```sql
+SELECT aliens.species, aliens.habitat, planets.planet_name 
+FROM aliens
+JOIN planets ON aliens.species = planets.dominant_species;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+```
+
+### Left Join
+
+Now, let's use a `LEFT JOIN` to combine the two tables. A `LEFT JOIN` returns all records from the left table and the matched records from the right table. If there is no match, NULL values are returned for columns from the right table.
+
+For example, take `aliens` table as the left table and `planets` table as the right table. We can join them on the `species` column from the `aliens` table and the `dominant_species` column from the `planets` table. In that way, we find all aliens and their corresponding planets. Note that some aliens may not have a corresponding planet discovered, so we will get NULL values for those aliens.
+
+```sql
+SELECT aliens.species, aliens.habitat, planets.planet_name 
+FROM aliens
+LEFT JOIN planets ON aliens.species = planets.dominant_species;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+```
+
+::: callout-exercise
+
+Write a query to join the aliens and planets tables. This time, take the `planets` table as the left table and the `aliens` table as the right table. Think about what the result will look like before running the query.
+
+```sql
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
+```
+:::
+
+
+## Conclusion
+
+In this tutorial, we covered the basics of SQL using a sample aliens table. We learned how to retrieve, filter, sort, and aggregate data, as well as how to join multiple tables. These are fundamental skills that will help you work with databases effectively.

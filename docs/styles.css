@@ -1,0 +1,34 @@
+body {
+  font-size: 1em;
+}
+
+#TOC {
+    top: 0;
+    font-size: 1em; /* Increase font size */
+    color: #333; /* Change color to a darker shade for better visibility */
+    background-color: #f9f9f9; /* Optional: Add a background color for contrast */
+    padding: 1em; /* Add padding for better spacing */
+    border-radius: 5px; /* Optional: Add border-radius for rounded corners */
+  }
+
+@media (min-width: 1264.02px) {
+#TOC.side {
+    .active {
+    color: #1e90ff; /* DodgerBlue */
+    }
+    li li .active {
+    border-left: 3px solid;
+    margin-left: calc(-1em - 3px);
+    padding-left: 1em;
+    }
+    &:has(.active) li:not(:has(.active)) ul {
+    display: none;
+    }
+}
+}
+
+.callout-exercise {
+    --callout-background: white;
+    --callout-border: whitesmoke;
+    --callout-icon: "📝 ";
+  }
