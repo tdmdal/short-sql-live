@@ -252,6 +252,36 @@ Write a query to find the average `lifespan` of aliens in each `size`.
 :::
 
 
+## Filter After Aggregation
+
+You can also filter the results of an aggregate function using the `HAVING` clause. For example, let's find the average `lifespan` of aliens in each `habitat`, but only for habitats with more than 2 aliens.
+
+```sql
+SELECT habitat, count(*) AS count, avg(lifespan) AS avg_lifespan
+FROM aliens
+GROUP BY habitat
+HAVING count(*) > 2;
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+
+:::
+
+::: callout-exercise
+
+Write a query to find the average `lifespan` of aliens in each `size`, and display only those sizes with an average `lifespan` greater than `100`. 
+
+
+```sql
+
+
+```
+```{=html}
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+```
+:::
+
 ## Join
 
 You may want to combine data from multiple tables. For example, suppose we have another table called `planets` that contains information about the planets where the aliens come from. We can use various `JOIN` operations to combine the two tables.

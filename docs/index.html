@@ -55,13 +55,14 @@
 <li><a href="#sec:filter"><span class="section-number main-number">3</span> Filter</a></li>
 <li><a href="#sec:sort"><span class="section-number main-number">4</span> Sort</a></li>
 <li><a href="#sec:aggregate"><span class="section-number main-number">5</span> Aggregate</a></li>
-<li><a href="#sec:join"><span class="section-number main-number">6</span> Join</a>
+<li><a href="#sec:filter-after-aggregation"><span class="section-number main-number">6</span> Filter After Aggregation</a></li>
+<li><a href="#sec:join"><span class="section-number main-number">7</span> Join</a>
 <ul>
-<li><a href="#sec:inner-join"><span class="section-number">6.1</span> Inner Join</a></li>
-<li><a href="#sec:left-join"><span class="section-number">6.2</span> Left Join</a></li>
+<li><a href="#sec:inner-join"><span class="section-number">7.1</span> Inner Join</a></li>
+<li><a href="#sec:left-join"><span class="section-number">7.2</span> Left Join</a></li>
 </ul>
 </li>
-<li><a href="#sec:conclusion"><span class="section-number main-number">7</span> Conclusion</a></li>
+<li><a href="#sec:conclusion"><span class="section-number main-number">8</span> Conclusion</a></li>
 </ul>
 </div>
 <style type="text/css">
@@ -198,7 +199,23 @@ GROUP BY habitat;
 </code></pre>
 <codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
 </div>
-<h2 id="sec:join"><span class="section-number main-number">6</span> Join</h2>
+<h2 id="sec:filter-after-aggregation"><span class="section-number main-number">6</span> Filter After Aggregation</h2>
+<p>You can also filter the results of an aggregate function using the <code>HAVING</code> clause. For example, let’s find the average <code>lifespan</code> of aliens in each <code>habitat</code>, but only for habitats with more than 2 aliens.</p>
+<pre><code class="language-sql">SELECT habitat, count(*) AS count, avg(lifespan) AS avg_lifespan
+FROM aliens
+GROUP BY habitat
+HAVING count(*) &gt; 2;
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<div class="callout-exercise">
+<p>Write a query to find the average <code>lifespan</code> of aliens in each <code>size</code>, and display only those sizes with an average <code>lifespan</code> greater than <code>100</code>.</p>
+<pre><code class="language-sql">
+
+</code></pre>
+<codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table"></codapi-snippet>
+</div>
+<h2 id="sec:join"><span class="section-number main-number">7</span> Join</h2>
 <p>You may want to combine data from multiple tables. For example, suppose we have another table called <code>planets</code> that contains information about the planets where the aliens come from. We can use various <code>JOIN</code> operations to combine the two tables.</p>
 <p>Let’s first create the <code>planets</code> table and insert some data. It’s not the focus of this tutorial, so we will not go into details.</p>
 <pre><code class="language-sql">CREATE TABLE planets (
@@ -220,14 +237,14 @@ INSERT INTO planets (planet_name, dominant_species) VALUES
 <pre><code class="language-sql">SELECT * FROM planets;
 </code></pre>
 <codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
-<h3 id="sec:inner-join"><span class="section-number">6.1</span> Inner Join</h3>
+<h3 id="sec:inner-join"><span class="section-number">7.1</span> Inner Join</h3>
 <p>A <code>JOIN</code> or <code>INNER JOIN</code> returns only the records that have matching values in both tables. In this case, we can join the aliens and planets tables on the <code>species</code> column from the aliens table and the <code>dominant_species</code> column from the planets table.</p>
 <pre><code class="language-sql">SELECT aliens.species, aliens.habitat, planets.planet_name 
 FROM aliens
 JOIN planets ON aliens.species = planets.dominant_species;
 </code></pre>
 <codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
-<h3 id="sec:left-join"><span class="section-number">6.2</span> Left Join</h3>
+<h3 id="sec:left-join"><span class="section-number">7.2</span> Left Join</h3>
 <p>Now, let’s use a <code>LEFT JOIN</code> to combine the two tables. A <code>LEFT JOIN</code> returns all records from the left table and the matched records from the right table. If there is no match, NULL values are returned for columns from the right table.</p>
 <p>For example, take <code>aliens</code> table as the left table and <code>planets</code> table as the right table. We can join them on the <code>species</code> column from the <code>aliens</code> table and the <code>dominant_species</code> column from the <code>planets</code> table. In that way, we find all aliens and their corresponding planets. Note that some aliens may not have a corresponding planet discovered, so we will get NULL values for those aliens.</p>
 <pre><code class="language-sql">SELECT aliens.species, aliens.habitat, planets.planet_name 
@@ -242,7 +259,7 @@ LEFT JOIN planets ON aliens.species = planets.dominant_species;
 </code></pre>
 <codapi-snippet engine="wasi" sandbox="sqlite" editor="basic" template="#aliens-table" depends-on="planets-table"></codapi-snippet>
 </div>
-<h2 id="sec:conclusion"><span class="section-number main-number">7</span> Conclusion</h2>
+<h2 id="sec:conclusion"><span class="section-number main-number">8</span> Conclusion</h2>
 <p>In this tutorial, we covered the basics of SQL using a sample aliens table. We learned how to retrieve, filter, sort, and aggregate data, as well as how to join multiple tables. These are fundamental skills that will help you work with databases effectively.</p>
 </div>
 <p>Created by Jay / TDMDAL with <a href="https://yihui.org/litedown/">litedown</a>, <a href="https://github.com/nalgeon/codapi-js">codapi-js</a>, and ChatGPT.</p>
